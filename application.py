@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, abort
 from flask.ext.cors import CORS
 
+from dbconnect import connection
+
 application = Flask(__name__)
 
 #Cross-Origin Resource Sharing application
@@ -8,12 +10,12 @@ CORS(application)
 
 #By default, there is atleast 1 order in local memory.
 orders = [{
-      "address": "6 Metrotech, NYU", 
-      "cuisine": "Italian", 
-      "email": "wmv214@nyu.edu", 
-      "id": 1, 
-      "name": "Waqid Munawar", 
-      "people": 5, 
+      "address": "6 Metrotech, NYU",
+      "cuisine": "Italian",
+      "email": "wmv214@nyu.edu",
+      "id": 1,
+      "name": "Waqid Munawar",
+      "people": 5,
       "phone": "917-960-2468"
     }];
 
@@ -31,12 +33,12 @@ def index():
     {
       "orders": [
         {
-          "address": "6 Metrotech, NYU", 
-          "cuisine": "Italian", 
-          "email": "wmv214@nyu.edu", 
-          "id": 1, 
-          "name": "Waqid Munawar", 
-          "people": 5, 
+          "address": "6 Metrotech, NYU",
+          "cuisine": "Italian",
+          "email": "wmv214@nyu.edu",
+          "id": 1,
+          "name": "Waqid Munawar",
+          "people": 5,
           "phone": "917-960-2468"
         }
       ]
@@ -46,7 +48,7 @@ def index():
     <hr>
     <p><h3>2) To submit a new order, you have to make a POST request to the above URL's (local/AWS)</h3></p>
     <p>eg: <u>To test on local</u>, you can open a new terminal (in MAC) and type the following:</p>
-    <p><b><code>curl -i -H "Content-Type: application/json" -X POST -d '{"address": "2 Metrotech","cuisine": "Chinese","email": "n123@nyu.edu", 
+    <p><b><code>curl -i -H "Content-Type: application/json" -X POST -d '{"address": "2 Metrotech","cuisine": "Chinese","email": "n123@nyu.edu",
     "name": "New Test User","people": 5, "phone": "917-960-2468"}' http://localhost:5000/caterpi/v1.0/orders</code></b></p>
     <p>Sample Response:<pre><code>
     HTTP/1.0 201 CREATED
@@ -56,14 +58,14 @@ def index():
     Date: Fri, 08 Apr 2016 16:33:49 GMT
 
     {
-      "msg": "We have received your request and will get back to you shortly!", 
+      "msg": "We have received your request and will get back to you shortly!",
       "order": {
-        "address": "2 Metrotech", 
+        "address": "2 Metrotech",
         "cuisine": "Chinese",
-        "email": "n123@nyu.edu", 
-        "id": 3, 
-        "name": "New Test User", 
-        "people": 5, 
+        "email": "n123@nyu.edu",
+        "id": 3,
+        "name": "New Test User",
+        "people": 5,
         "phone": "917-960-2468"
       }
     }
@@ -89,9 +91,26 @@ def index():
     '''
     return html
 
-#API to fetch list of all orders 
+#API to fetch list of all orders
 @application.route('/caterpi/v1.0/orders', methods=['GET'])
 def get_tasks():
+    c, conn = connection()
+    sql = "SELECT * FROM orders"
+    c.execute(sql)
+    data = c.fetchall()
+    
+    for row in data:
+        order = {
+            'id': row[0],
+            'name': row[1],
+            'phone': row[2],
+            'email': row[3],
+            'people': row[4],
+            'address': row[6],
+            'cuisine': row[5]
+        }
+        orders.append(order)
+        
     return jsonify({'orders': orders})
 
 #API to submit a new order
@@ -99,16 +118,39 @@ def get_tasks():
 def create_task():
     if not request.json: #or not 'phone' in request.json:
         abort(400)
+
+    name = request.json.get('name', "")
+    phone = request.json['phone']
+    email = request.json.get('email',"")
+    people = request.json.get('people',"")
+    address = request.json.get('address',"")
+    cuisine = request.json.get('cuisine',"")
+    
+    c, conn = connection()
+    sql = "INSERT INTO orders (name, phone, email, people, cuisine, address) VALUES ('%s', '%s', '%s', '%s', '%s', '%s');" % (name, phone, email, people, cuisine, address)
+    c.execute(sql)
+    conn.commit()
+    sql = "SELECT id FROM orders ORDER BY id DESC LIMIT 1"
+    c.execute(sql)
+
+    # Retrieve newest data ID, display in retured json obj
+    data = c.fetchall()
+    for row in data:
+        id = row[0]
+
+    c.close()
+    conn.close()
+
     order = {
-        'id': orders[-1]['id'] + 1,
-        'name': request.json.get('name',""),   
-        'phone': request.json['phone'],   
-        'email': request.json.get('email',""),   
-        'people': request.json.get('people',""),   
-        'address': request.json.get('address',""), 
-        'cuisine': request.json.get('cuisine',"")
+        'id': id,
+        'name': name,
+        'phone': phone,
+        'email': email,
+        'people': people,
+        'address': address,
+        'cuisine': cuisine
     }
-    orders.append(order)
+    
     return jsonify({'msg': 'We have received your request and will get back to you shortly!', 'order': order}), 201
 
 
