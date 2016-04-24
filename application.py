@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, abort
 from flask.ext.cors import CORS
 
 from dbconnect import connection
+from notify_host import notify_host
+import os
 
 application = Flask(__name__)
 
@@ -98,7 +100,7 @@ def get_tasks():
     sql = "SELECT * FROM orders"
     c.execute(sql)
     data = c.fetchall()
-    
+
     for row in data:
         order = {
             'id': row[0],
@@ -110,7 +112,7 @@ def get_tasks():
             'cuisine': row[5]
         }
         orders.append(order)
-        
+
     return jsonify({'orders': orders})
 
 #API to submit a new order
@@ -125,7 +127,7 @@ def create_task():
     people = request.json.get('people',"")
     address = request.json.get('address',"")
     cuisine = request.json.get('cuisine',"")
-    
+
     c, conn = connection()
     sql = "INSERT INTO orders (name, phone, email, people, cuisine, address) VALUES ('%s', '%s', '%s', '%s', '%s', '%s');" % (name, phone, email, people, cuisine, address)
     c.execute(sql)
@@ -150,7 +152,10 @@ def create_task():
         'address': address,
         'cuisine': cuisine
     }
-    
+
+    # Replace argument with an email address type string, or a list of emails
+    notify_host(os.environ["SENDEREMAIL"])
+
     return jsonify({'msg': 'We have received your request and will get back to you shortly!', 'order': order}), 201
 
 
