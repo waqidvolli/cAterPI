@@ -3,17 +3,108 @@
 
 <head>
     <link href="css/buttons.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/cover.css" rel="stylesheet">
+    <link href="css/toaster.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
 </head>
 
 <body>
-    <a id="caterapi" class="button button-rounded button-flat-caution"><i class="fa fa-cutlery"></i> cAterPI</a>
+
+    <div class="site-wrapper">
+
+        <div class="site-wrapper-inner">
+
+            <div class="cover-container">
+
+                <div class="inner cover">
+                    <h1 class="cover-heading">cAterPI</h1>
+                    <!--             <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p> -->
+                    <form><small class="text-muted">We'll never share your info with anyone else.</small>
+                        <fieldset class="form-group">
+                            <!--     <label for="exampleInputEmail1">Email address</label> -->
+
+                            <input type="text" id="caterpi-name" class="form-control" placeholder="Name" autofocus>
+                        </fieldset>
+                        <fieldset class="form-group">
+                            <input type="phone" id="caterpi-phone" class="form-control" placeholder="Phone" required>
+                        </fieldset>
+                        <fieldset class="form-group">
+                            <input type="email" id="caterpi-email" class="form-control" placeholder="Email">
+                        </fieldset>
+                        <fieldset class="form-group">
+                            <input type="text" id="caterpi-address" class="form-control" placeholder="Address">
+                        </fieldset>
+                        <fieldset class="form-group">
+                            <input type="number" id="caterpi-people" class="form-control" placeholder="Number of people">
+                        </fieldset>
+                        <fieldset class="form-group">
+                            <input type="text" id="caterpi-cuisine" class="form-control" placeholder="Cuisine">
+                        </fieldset>
+
+
+                    </form>
+
+
+
+
+
+                    <p class="lead">
+                        <a id="caterapi" class="button button-rounded button-flat-caution"><i class="fa fa-cutlery"></i> Submit</a>
+                    </p>
+                </div>
+
+                <div class="mastfoot">
+                    <div class="inner">
+                        <!--    <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p> -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+
     <script src="js/jquery-2.2.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="js/buttons.js"></script>
+    <script src="js/toaster.js"></script>
     <script>
         $('#caterapi').click(function() {
-            var url = "http://goo.gl/forms/laZ2bhw0BF";
-            window.open(url);
+            var name = $('#caterpi-name').val();
+            var phone = $('#caterpi-phone').val();
+            var email = $('#caterpi-email').val();
+            var people = $('#caterpi-people').val();
+            var address = $('#caterpi-address').val();
+            var cuisine = $('#caterpi-cuisine').val();
+            var jsonData = {
+                "name": name,
+                "phone": phone,
+                "email": email,
+                "people": people,
+                "address": address,
+                "cuisine": cuisine
+            };
+            var requestStr = JSON.stringify(jsonData);
+
+            var url = "http://caterpi-dev.us-west-2.elasticbeanstalk.com/caterpi/v1.0/orders";
+            //var url = "http://flask-env.6iwffrnipg.us-west-2.elasticbeanstalk.com/caterpi/v1.0/orders";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: requestStr,
+                contentType: "application/json"
+            }).done(function(response) {
+                toastr.options = {
+                  "positionClass": "toast-top-center"
+                }
+                toastr["success"]("We have received your request and will get back to you shortly.", "Thank You !")
+            });
         })
     </script>
 </body>
