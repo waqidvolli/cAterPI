@@ -1,12 +1,13 @@
 import MySQLdb
+import os
 
 def connection():
     ''' creates connection with local/remote database '''
-    conn = MySQLdb.connect (host = "orders.cn9rvzzvqepf.us-west-2.rds.amazonaws.com",
-                            port = 3306,
-                            user = "nyutircaterpi",
-                            passwd = "cAterPI2016",
-                            db = "orders")
+    conn = MySQLdb.connect (host = os.environ["HOST"],
+                            port = int(os.environ["PORT"]),
+                            user = os.environ["DBUSER"],
+                            passwd = os.environ["DBPASSWD"],
+                            db = os.environ["DB"])
     c = conn.cursor()
 
     return c, conn
