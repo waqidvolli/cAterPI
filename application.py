@@ -1,10 +1,20 @@
 from flask import Flask, request, jsonify, abort
 from flask.ext.cors import CORS
-
+from flask_mail import Mail, Message
 from dbconnect import connection
 
 application = Flask(__name__)
+application.config.update(
+    DEBUG=True,
+    #EMAIL SETTINGS
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME = '<REPLACE-WITH-EMAIL_ID>',
+    MAIL_PASSWORD = "<REPLACE-WITH-PASSWORD>"
+    )
 
+mail=Mail(application)
 #Cross-Origin Resource Sharing application
 CORS(application)
 
@@ -150,7 +160,9 @@ def create_task():
         'address': address,
         'cuisine': cuisine
     }
-    
+    msg = Message('Order Confirmation',sender='teamcaterpi@dgoogle.com',recipients=[email])
+    msg.body = "Thank you. We have received your request and will get back to you shortly! "
+    mail.send(msg)
     return jsonify({'msg': 'We have received your request and will get back to you shortly!', 'order': order}), 201
 
 
