@@ -54,12 +54,23 @@
                     </p>
                 </div>
 
+                
+            <div>
+                    <p>
+                        Select an image from your computer to use as your Logo:<br>
+                        <input id="uploadfile" type="file" name="logofile">
+                    </p>
+                    <div>
+                        <input type="submit" name="submit" value="Upload Now">
+                    </div>
+            </div>
+                
+
                 <div class="mastfoot">
                     <div class="inner">
                         <!--    <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p> -->
                     </div>
                 </div>
-
             </div>
 
         </div>
@@ -107,6 +118,33 @@
             });
         })
     </script>
+    
+    
+    <script>
+        function uploadFile(file) {
+            var url2 = 'server/index.php';
+            var xhr = new XMLHttpRequest();
+            var fd = new FormData();
+            xhr.open("POST", url2, true);
+            //debug
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(xhr.responseText);
+                }
+            };
+            fd.append("upload_file", file);
+            xhr.send(fd);
+            xhr.send(fd);
+        }
+    </script>
+    <script>
+        var uploadfile = document.querySelector('#uploadfile');
+        uploadfile.addEventListener('change', function() {
+            var file = this.file;
+            uploadFile(this.file);
+        })
+    </script>
+    
 </body>
 
 </html>
