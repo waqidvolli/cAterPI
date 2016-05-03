@@ -1,12 +1,21 @@
 from flask import Flask, request, jsonify, abort
 from flask.ext.cors import CORS
-
+from flask_mail import Mail, Message
 from dbconnect import connection
 from notify_host import notify_host
 import os
 
 application = Flask(__name__)
-
+application.config.update(
+    DEBUG=True,
+    #EMAIL SETTINGS
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME = 'teamcaterpi@gmail.com',
+    MAIL_PASSWORD = "password" #replace with password
+    )
+mail=Mail(application)
 #Cross-Origin Resource Sharing application
 CORS(application)
 
@@ -152,9 +161,16 @@ def create_task():
         'address': address,
         'cuisine': cuisine
     }
-
     # Replace argument with an email address type string, or a list of emails
-    notify_host(os.environ["SENDEREMAIL"])
+    #notify_host(os.environ["SENDEREMAIL"])
+    msg = Message('Order Confirmation',sender='teamcaterpi@google.com',recipients=[email])
+    msg.body = "Dear "+name+",\n\nThank you. We have received your request for "+cuisine+" and will get back to you shortly!"
+    mail.send(msg)
+
+    msg2 = Message('cAterPI Client Order Received!',sender='teamcaterpi@google.com',recipients=['wmv214@nyu.edu','mew473@stern.nyu.edu','sc4251@nyu.edu','yy837@nyu.edu'])
+    msg2.body = "You have received a catering request from "+email+" for "+cuisine+". Please check the database and contact client for follow up."
+    mail.send(msg2)
+
 
     return jsonify({'msg': 'We have received your request and will get back to you shortly!', 'order': order}), 201
 
