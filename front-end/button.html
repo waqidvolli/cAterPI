@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/jquery-2.2.2.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    
+    <link rel="stylesheet"  href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.1/themes/vader/jquery-ui.css">
+    
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $('#box_form').load('index.html').dialog({
+                
+                autoOpen: false,
+                height: 610,
+                width: 450,
+                modal: true,
+            });
+            $('#click').button().click(function(){
+                $('#box_form').dialog('open');
+            });
+        });
+    </script>
+</head>
+    
+<body>
+    <div id="box_form"></div>
+</body>
+    
+<input type="button" id="click" value="Show Form">
+</html>
